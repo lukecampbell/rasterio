@@ -343,6 +343,21 @@ def test_creation_metadata_deprecation(tmpdir):
         assert dst.tags(ns='rio_creation_kwds') == {}
 
 
+def test_error_4(tmpdir):
+    from pathlib import Path
+    pth = Path(tmpdir) / 'fresh_dataset.tif'
+    if pth.exists():
+        pth.unlink()
+    with rasterio.open(pth,
+                       'w',
+                       driver='COG',
+                       height=10,
+                       width=10,
+                       count=1,
+                       dtype='uint8') as dst:
+        dst.write(np.ones((1, 10, 10), dtype='uint8'))
+
+
 def test_wplus_transform(tmpdir):
     """Transform is set on a new dataset created in w+ mode (see issue #1359)"""
     name = str(tmpdir.join("test.tif"))
