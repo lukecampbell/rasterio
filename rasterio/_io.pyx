@@ -20,6 +20,7 @@ import numpy as np
 from rasterio._base import tastes_like_gdal, gdal_version
 from rasterio._err import (
     GDALError, CPLE_OpenFailedError, CPLE_IllegalArgError, CPLE_BaseError, CPLE_AWSObjectNotFoundError)
+from rasterio._env import catch_errors
 from rasterio.crs import CRS
 from rasterio.compat import text_type, string_types
 from rasterio import dtypes
@@ -938,7 +939,8 @@ cdef class MemoryFileBase:
         if self._vsif != NULL:
             VSIFCloseL(self._vsif)
         self._vsif = NULL
-        _delete_dataset_if_exists(self.name)
+        with catch_errors():
+            _delete_dataset_if_exists(self.name)
         VSIRmdir(self._dirname.encode("utf-8"))
         self.closed = True
 
@@ -1110,7 +1112,8 @@ cdef class DatasetWriterBase(DatasetReaderBase):
 
         if mode in ('w', 'w+'):
 
-            _delete_dataset_if_exists(path)
+            with catch_errors():
+                _delete_dataset_if_exists(path)
 
             driver_b = driver.encode('utf-8')
             drv_name = driver_b
@@ -2077,7 +2080,8 @@ cdef class BufferedDatasetWriterBase(DatasetWriterBase):
         fname = name_b
 
         # Delete existing file, create.
-        _delete_dataset_if_exists(self.name)
+        with catch_errors():
+            _delete_dataset_if_exists(self.name)
 
         driver_b = self.driver.encode('utf-8')
         drv_name = driver_b
